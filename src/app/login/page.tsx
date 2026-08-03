@@ -79,8 +79,13 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Clean Corporate Card */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-6 shadow-sm">
+        {/* Clean Corporate Card with Top & Bottom Center Glowing Borders */}
+        <div className="relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-6 shadow-md overflow-hidden">
+          {/* Top Center Glowing Border Line */}
+          <div className="absolute -top-px left-1/2 -translate-x-1/2 w-3/4 h-[2px] bg-gradient-to-r from-transparent via-emerald-500 to-transparent shadow-[0_0_12px_#10b981]" />
+
+          {/* Bottom Center Glowing Border Line */}
+          <div className="absolute -bottom-px left-1/2 -translate-x-1/2 w-3/4 h-[2px] bg-gradient-to-r from-transparent via-emerald-500/80 to-transparent shadow-[0_0_12px_#10b981]" />
           <form onSubmit={handleSubmit} className="space-y-4" dir="rtl">
             
             {/* Error Message */}
@@ -158,7 +163,7 @@ export default function LoginPage() {
         </div>
 
         <p className="text-center text-xs text-slate-400 dark:text-slate-600 mt-5">
-          منصة خالد الشهراني © {new Date().getFullYear()}
+           خالد الشهراني © {new Date().getFullYear()}
         </p>
       </div>
     </div>
