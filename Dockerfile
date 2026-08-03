@@ -37,8 +37,10 @@ ENV HOSTNAME="0.0.0.0"
 
 # Copy standalone build & static files
 COPY --from=builder /app/public ./public
+COPY --from=builder /app/public ./.next/standalone/public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/.next/static ./.next/standalone/.next/static
 
 # Copy Prisma schema & seed files for runtime migrations
 COPY --from=builder /app/prisma ./prisma
