@@ -80,7 +80,7 @@ export function InvoiceForm({ invoice, employees = [], mode = 'create' }: Invoic
           type="text"
           value={form.name}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
-          placeholder="مثال: اشتراك خوادم ورخص برمجية"
+          placeholder=""
           required
           className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-md text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-600 transition-colors"
         />
@@ -94,11 +94,11 @@ export function InvoiceForm({ invoice, employees = [], mode = 'create' }: Invoic
           </label>
           <input
             type="number"
-            step="0.01"
+            step="1"
             min="0"
             value={form.amount}
             onChange={(e) => setForm({ ...form, amount: e.target.value })}
-            placeholder="0.00"
+            placeholder="0"
             required
             className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-md text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-600 transition-colors font-mono"
           />

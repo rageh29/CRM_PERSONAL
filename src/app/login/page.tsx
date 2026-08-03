@@ -157,8 +157,8 @@ export default function LoginPage() {
        
         </div>
 
-        <p className="text-center text-xs text-slate-400 dark:text-slate-600 mt-5">
-           خالد الشهراني © {new Date().getFullYear()}
+        <p className="text-center text-xs font-semibold text-emerald-800 dark:text-emerald-400/80 mt-5">
+          منصة خالد الشهراني © {new Date().getFullYear()}
         </p>
       </div>
     </div>

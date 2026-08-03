@@ -20,11 +20,11 @@ const NAV_ITEMS = [
 ];
 
 const MOBILE_NAV = [
-  { href: '/dashboard', label: 'الرئيسية', icon: 'home', isMenu: false },
-  { href: '/dashboard/invoices', label: 'الفواتير', icon: 'invoice', isMenu: false },
-  { href: '/dashboard/invoices/new', label: 'جديدة', icon: 'plus', isMenu: false },
-  { href: '/dashboard/comparisons', label: 'المقارنات', icon: 'chart', isMenu: false },
-  { href: '#', label: 'المزيد', icon: 'menu', isMenu: true },
+  { href: '/dashboard', label: 'الرئيسية', icon: 'home', isMenu: false, permission: 'invoices:view' },
+  { href: '/dashboard/invoices', label: 'الفواتير', icon: 'invoice', isMenu: false, permission: 'invoices:view' },
+  { href: '/dashboard/invoices/new', label: 'جديدة', icon: 'plus', isMenu: false, permission: 'invoices:create' },
+  { href: '/dashboard/comparisons', label: 'المقارنات', icon: 'chart', isMenu: false, permission: 'invoices:view' },
+  { href: '#', label: 'المزيد', icon: 'menu', isMenu: true, permission: '*' },
 ];
 
 function isLinkActive(itemHref: string, currentPath: string): boolean {
@@ -62,6 +62,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const userPermissions = (session?.user as any)?.permissions || [];
 
   const filteredNav = NAV_ITEMS.filter(item => hasPermission(userRole, userPermissions, item.permission));
+  const filteredMobileNav = MOBILE_NAV.filter(item => item.isMenu || hasPermission(userRole, userPermissions, item.permission));
 
   return (
     <div className="flex min-h-screen">
@@ -217,7 +218,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Mobile Bottom Nav */}
       <nav className="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800">
         <div className="flex items-center justify-around px-2 py-1">
-          {MOBILE_NAV.map((item) => {
+          {filteredMobileNav.map((item) => {
             const isActive = !item.isMenu && isLinkActive(item.href, pathname);
             const isAddButton = item.icon === 'plus';
 

@@ -27,8 +27,9 @@ export function MonthlyChart({ data, type = 'bar' }: MonthlyChartProps) {
     if (!ctx) return;
 
     const isDark = document.documentElement.classList.contains('dark');
-    const gridColor = isDark ? 'rgba(16, 185, 129, 0.12)' : 'rgba(226, 232, 240, 0.8)';
-    const textColor = isDark ? '#a7f3d0' : '#64748b';
+    const gridColor = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(226, 232, 240, 0.8)';
+    const textColor = isDark ? '#f8fafc' : '#0f172a';
+    const legendColor = isDark ? '#f1f5f9' : '#0f172a';
 
     chartRef.current = new Chart(ctx, {
       type,
@@ -98,31 +99,32 @@ export function MonthlyChart({ data, type = 'bar' }: MonthlyChartProps) {
             align: 'start',
             rtl: true,
             labels: {
-              color: textColor,
+              color: legendColor,
               usePointStyle: true,
               pointStyle: 'circle',
               padding: 16,
               font: {
                 family: 'Cairo, sans-serif',
-                size: 11,
+                size: 12,
+                weight: 'bold',
               },
             },
           },
           tooltip: {
             rtl: true,
-            backgroundColor: isDark ? '#0f1c16' : '#ffffff',
-            titleColor: isDark ? '#ecfdf5' : '#0f172a',
-            bodyColor: isDark ? '#a7f3d0' : '#64748b',
-            borderColor: isDark ? '#1b382b' : '#e2e8f0',
+            backgroundColor: isDark ? '#121318' : '#ffffff',
+            titleColor: isDark ? '#ffffff' : '#0f172a',
+            bodyColor: isDark ? '#e2e8f0' : '#1e293b',
+            borderColor: isDark ? '#232530' : '#cbd5e1',
             borderWidth: 1,
             cornerRadius: 12,
             padding: 12,
             titleFont: {
-              family: 'IBM Plex Sans Arabic, sans-serif',
+              family: 'Cairo, sans-serif',
               weight: 'bold',
             },
             bodyFont: {
-              family: 'IBM Plex Sans Arabic, sans-serif',
+              family: 'Cairo, sans-serif',
             },
             callbacks: {
               label: (ctx) => {
@@ -137,14 +139,14 @@ export function MonthlyChart({ data, type = 'bar' }: MonthlyChartProps) {
             grid: { display: false },
             ticks: {
               color: textColor,
-              font: { family: 'IBM Plex Sans Arabic, sans-serif', size: 10 },
+              font: { family: 'Cairo, sans-serif', size: 11, weight: 'bold' },
             },
           },
           y: {
             grid: { color: gridColor },
             ticks: {
               color: textColor,
-              font: { family: 'IBM Plex Sans Arabic, sans-serif', size: 10 },
+              font: { family: 'Cairo, sans-serif', size: 11, weight: 'bold' },
               callback: (val) => `${Number(val).toLocaleString('ar-SA')}`,
             },
           },

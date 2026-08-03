@@ -395,23 +395,28 @@ export function ComparisonsClient({ monthlyData }: { monthlyData: any[] }) {
 
           {/* Clean Data Table */}
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-md shadow-xs overflow-hidden">
-            <div className="p-3.5 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/50 flex items-center justify-between">
-              <h3 className="text-xs font-bold text-slate-900 dark:text-white">تفاصيل المقارنة المالية</h3>
-              <span className="text-[11px] text-slate-500 font-semibold">{label1} مقابل {label2}</span>
+            <div className="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/50 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">تفاصيل المقارنة المالية</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">مقارنة تفصيلية لكل بند مالي بين الفترتين المحددتين</p>
+              </div>
+              <span className="inline-flex items-center px-2.5 py-1 rounded bg-blue-50 text-blue-700 dark:bg-blue-950/80 dark:text-blue-300 text-xs font-bold border border-blue-100 dark:border-blue-900/50">
+                {label1} ⚡ {label2}
+              </span>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-right border-collapse text-xs">
+            <div className="overflow-x-auto w-full">
+              <table className="w-full text-right border-collapse text-xs min-w-[680px]">
                 <thead>
-                  <tr className="bg-slate-100/90 dark:bg-slate-800/90 border-b border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 font-bold uppercase">
-                    <th className="p-3">البند المالي</th>
-                    <th className="p-3">{label1}</th>
-                    <th className="p-3">{label2}</th>
-                    <th className="p-3 text-center">نسبة التغير (%)</th>
-                    <th className="p-3 text-center min-w-[120px]">المؤشر النسبة البصري</th>
+                  <tr className="bg-slate-100/90 dark:bg-slate-800/90 border-b border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 font-bold uppercase whitespace-nowrap">
+                    <th className="py-3.5 px-4 min-w-[140px]">البند المالي</th>
+                    <th className="py-3.5 px-4 min-w-[130px]">{label1}</th>
+                    <th className="py-3.5 px-4 min-w-[130px]">{label2}</th>
+                    <th className="py-3.5 px-4 text-center min-w-[120px]">نسبة التغير (%)</th>
+                    <th className="py-3.5 px-4 text-center min-w-[160px]">المؤشر البصري</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+                <tbody className="divide-y divide-slate-200 dark:divide-slate-800 whitespace-nowrap">
                   {items.map((item) => {
                     const isPositiveChange = item.isGoodWhenHigher ? item.change >= 0 : item.change <= 0;
                     const maxVal = Math.max(Math.abs(item.v1), Math.abs(item.v2), 1);
@@ -420,35 +425,37 @@ export function ComparisonsClient({ monthlyData }: { monthlyData: any[] }) {
 
                     return (
                       <tr key={item.key} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                        <td className="p-3 font-bold text-slate-900 dark:text-white">
+                        <td className="py-3.5 px-4 font-bold text-slate-900 dark:text-white">
                           {item.label}
                         </td>
-                        <td className="p-3 font-bold text-slate-700 dark:text-slate-300">
+                        <td className="py-3.5 px-4 font-bold text-slate-700 dark:text-slate-300">
                           {formatCurrency(item.v1)}
                         </td>
-                        <td className="p-3 font-bold text-slate-900 dark:text-white">
+                        <td className="py-3.5 px-4 font-extrabold text-slate-900 dark:text-white">
                           {formatCurrency(item.v2)}
                         </td>
-                        <td className="p-3 text-center">
+                        <td className="py-3.5 px-4 text-center">
                           {item.v1 === 0 && item.v2 === 0 ? (
                             <span className="text-slate-400 font-semibold">—</span>
                           ) : (
-                            <span className={`inline-block px-2 py-0.5 rounded font-bold text-[11px] border ${
+                            <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md font-extrabold text-xs border ${
                               isPositiveChange
-                                ? 'bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300'
-                                : 'bg-red-50 text-red-800 border-red-200 dark:bg-red-950 dark:text-red-300'
+                                ? 'bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800/60'
+                                : 'bg-red-50 text-red-800 border-red-200 dark:bg-red-950 dark:text-red-300 dark:border-red-800/60'
                             }`}>
-                              {item.change > 0 ? '+' : ''}{item.change.toFixed(1)}%
+                              {item.change > 0 ? '↑ +' : '↓ '}{item.change.toFixed(1)}%
                             </span>
                           )}
                         </td>
-                        <td className="p-3">
+                        <td className="py-3.5 px-4">
                           <div className="space-y-1">
-                            <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
-                              <div className="bg-slate-400 dark:bg-slate-500 h-full rounded-full" style={{ width: `${pct1}%` }} />
+                            <div className="flex items-center justify-between text-[10px] text-slate-400 font-semibold mb-0.5">
+                              <span>{pct1}% ({label1})</span>
+                              <span>{pct2}% ({label2})</span>
                             </div>
-                            <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
-                              <div className="bg-blue-600 h-full rounded-full" style={{ width: `${pct2}%` }} />
+                            <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 overflow-hidden flex gap-0.5 p-0.5">
+                              <div className="bg-rose-500/80 dark:bg-rose-500/70 h-full rounded-full transition-all duration-500" style={{ width: `${pct1}%` }} title={`${label1}: ${pct1}%`} />
+                              <div className="bg-emerald-600 dark:bg-emerald-500 h-full rounded-full transition-all duration-500" style={{ width: `${pct2}%` }} title={`${label2}: ${pct2}%`} />
                             </div>
                           </div>
                         </td>
@@ -460,21 +467,98 @@ export function ComparisonsClient({ monthlyData }: { monthlyData: any[] }) {
             </div>
           </div>
 
-          {/* Clean Executive Summary Box */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-md p-4 space-y-2 shadow-xs">
-            <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase">
-              التقرير المالي المقارن
-            </h3>
-            <div className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed space-y-1">
-              <p>
-                • عند مقارنة <strong className="text-slate-900 dark:text-white">{label2}</strong> مع <strong className="text-slate-900 dark:text-white">{label1}</strong>، يظهر أن إجمالي الإيرادات سجلت {metrics2.revenue >= metrics1.revenue ? 'زيادة' : 'انخفاضاً'} قدره {formatCurrency(Math.abs(metrics2.revenue - metrics1.revenue))}.
-              </p>
-              <p>
-                • إجمالي النفقات التراكمية (شاملة الرواتب والمسترجعات) شهدت {metrics2.expense + metrics2.returns + metrics2.salary >= metrics1.expense + metrics1.returns + metrics1.salary ? 'ارتفاعاً' : 'انخفاضاً'} بنسبة {Math.abs(calculatePercentageChange(metrics2.expense + metrics2.returns + metrics2.salary, metrics1.expense + metrics1.returns + metrics1.salary)).toFixed(1)}%.
-              </p>
-              <p className="font-bold text-blue-700 dark:text-blue-400 pt-1">
-                • النتيجة النهائية: صافي الربح في {label2} بلغ {formatCurrency(metrics2.netProfit)} بالمقارنة مع {formatCurrency(metrics1.netProfit)} في {label1}.
-              </p>
+          {/* Executive Financial Report Card */}
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-5 sm:p-6 shadow-xs space-y-5">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 flex items-center justify-center font-bold text-lg flex-shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.7} stroke="currentColor" className="w-5 h-5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-1-1.5h-9.5m0 0l-.5 1.5M9 11.25v1.5M12 9v3.75M15 6v6.75" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white">
+                    التقرير المالي المقارن التحليلي
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    ملخص وتوصيات مقارنة <span className="font-bold text-slate-700 dark:text-slate-200">{label1}</span> مقابل <span className="font-bold text-slate-700 dark:text-slate-200">{label2}</span>
+                  </p>
+                </div>
+              </div>
+              <span className="hidden sm:inline-flex items-center px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-md text-xs font-bold border border-slate-200 dark:border-slate-700">
+                تقرير آلي معتمد
+              </span>
+            </div>
+
+            {/* Structured Report Bullet Points Grid */}
+            <div className="grid sm:grid-cols-2 gap-4">
+              {/* Revenue Card */}
+              <div className="bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 rounded-md p-4 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 text-emerald-600">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 005.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" />
+                    </svg>
+                    الإيرادات المالية
+                  </span>
+                  <span className={`text-xs font-extrabold px-2 py-0.5 rounded ${
+                    metrics2.revenue >= metrics1.revenue ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300'
+                  }`}>
+                    {metrics2.revenue >= metrics1.revenue ? 'نمو' : 'انخفاض'}
+                  </span>
+                </div>
+                <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed pt-1.5">
+                  سجلت الإيرادات في <span className="inline-block px-1.5 py-0.5 mx-0.5 rounded bg-blue-100 dark:bg-blue-950/80 text-blue-900 dark:text-blue-200 font-extrabold border border-blue-200 dark:border-blue-800/60">{label2}</span> مبلغ <span className="inline-block px-1.5 py-0.5 mx-0.5 rounded bg-emerald-100 dark:bg-emerald-950/80 text-emerald-900 dark:text-emerald-300 font-extrabold border border-emerald-300 dark:border-emerald-800/80">{formatCurrency(metrics2.revenue)}</span> مقارنة بـ <span className="inline-block px-1.5 py-0.5 mx-0.5 rounded bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-extrabold border border-slate-300 dark:border-slate-700">{formatCurrency(metrics1.revenue)}</span> في <span className="inline-block px-1.5 py-0.5 mx-0.5 rounded bg-blue-100 dark:bg-blue-950/80 text-blue-900 dark:text-blue-200 font-extrabold border border-blue-200 dark:border-blue-800/60">{label1}</span>، بفارق قدره <span className="inline-block px-1.5 py-0.5 mx-0.5 rounded bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-300 font-extrabold border border-amber-300 dark:border-amber-800/80">{formatCurrency(Math.abs(metrics2.revenue - metrics1.revenue))}</span>.
+                </p>
+              </div>
+
+              {/* Expenses Card */}
+              <div className="bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 rounded-md p-4 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-rose-700 dark:text-rose-400 flex items-center gap-1.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 text-rose-600">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6L9 12.75l4.286-4.286a11.948 11.948 0 014.306 6.43l.776 2.898m0 0l3.182-5.511m-3.182 5.511l-5.511-3.181" />
+                    </svg>
+                    النفقات والالتزامات
+                  </span>
+                  <span className={`text-xs font-extrabold px-2 py-0.5 rounded ${
+                    metrics2.expense + metrics2.returns + metrics2.salary <= metrics1.expense + metrics1.returns + metrics1.salary
+                      ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+                      : 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300'
+                  }`}>
+                    {metrics2.expense + metrics2.returns + metrics2.salary <= metrics1.expense + metrics1.returns + metrics1.salary ? 'تحكم أفضل' : 'ارتفاع'}
+                  </span>
+                </div>
+                <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed pt-1.5">
+                  بلغت النفقات التراكمية في <span className="inline-block px-1.5 py-0.5 mx-0.5 rounded bg-blue-100 dark:bg-blue-950/80 text-blue-900 dark:text-blue-200 font-extrabold border border-blue-200 dark:border-blue-800/60">{label2}</span> ما قيمته <span className="inline-block px-1.5 py-0.5 mx-0.5 rounded bg-rose-100 dark:bg-rose-950/80 text-rose-900 dark:text-rose-300 font-extrabold border border-rose-300 dark:border-rose-800/80">{formatCurrency(metrics2.expense + metrics2.returns + metrics2.salary)}</span> مقارنة بـ <span className="inline-block px-1.5 py-0.5 mx-0.5 rounded bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-extrabold border border-slate-300 dark:border-slate-700">{formatCurrency(metrics1.expense + metrics1.returns + metrics1.salary)}</span> في <span className="inline-block px-1.5 py-0.5 mx-0.5 rounded bg-blue-100 dark:bg-blue-950/80 text-blue-900 dark:text-blue-200 font-extrabold border border-blue-200 dark:border-blue-800/60">{label1}</span>.
+                </p>
+              </div>
+            </div>
+
+            {/* Net Profit Conclusion Highlight Box */}
+            <div className={`p-4 rounded-md border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 ${
+              isNetProfitPositive
+                ? 'bg-emerald-50/80 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-900/60'
+                : 'bg-red-50/80 dark:bg-red-950/40 border-red-200 dark:border-red-900/60'
+            }`}>
+              <div className="space-y-1">
+                <span className={`text-xs font-bold uppercase tracking-wider ${isNetProfitPositive ? 'text-emerald-800 dark:text-emerald-300' : 'text-red-800 dark:text-red-300'}`}>
+                  النتيجة النهائية للمقارنة المالية (صافي الربح)
+                </span>
+                <p className="text-xs text-slate-700 dark:text-slate-200 leading-relaxed pt-0.5">
+                  حققت المنصة صافي ربح قدره <span className="inline-block px-2 py-0.5 mx-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-950 dark:text-emerald-200 font-extrabold text-sm border border-emerald-300 dark:border-emerald-800">{formatCurrency(metrics2.netProfit)}</span> في <span className="inline-block px-1.5 py-0.5 mx-0.5 rounded bg-blue-100 dark:bg-blue-950 text-blue-900 dark:text-blue-200 font-extrabold border border-blue-200 dark:border-blue-800/60">{label2}</span> مقابل <span className="inline-block px-2 py-0.5 mx-0.5 rounded bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-extrabold text-sm border border-slate-300 dark:border-slate-700">{formatCurrency(metrics1.netProfit)}</span> في <span className="inline-block px-1.5 py-0.5 mx-0.5 rounded bg-blue-100 dark:bg-blue-950 text-blue-900 dark:text-blue-200 font-extrabold border border-blue-200 dark:border-blue-800/60">{label1}</span>.
+                </p>
+              </div>
+              <div className="flex-shrink-0 text-right">
+                <span className={`inline-flex items-center gap-1 text-sm font-extrabold px-3 py-1.5 rounded-md border ${
+                  isNetProfitPositive
+                    ? 'bg-emerald-600 text-white border-emerald-500 shadow-xs'
+                    : 'bg-red-600 text-white border-red-500 shadow-xs'
+                }`}>
+                  {netProfitChange >= 0 ? '↑ +' : '↓ '}{netProfitChange.toFixed(1)}%
+                </span>
+              </div>
             </div>
           </div>
 

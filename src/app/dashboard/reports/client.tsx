@@ -133,33 +133,35 @@ export function ReportsClient({ invoices }: { invoices: any[] }) {
       {/* Clean Corporate Table */}
       {filtered.length > 0 ? (
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-md shadow-xs overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-right border-collapse text-xs">
+          <div className="overflow-x-auto w-full">
+            <table className="w-full text-right border-collapse text-xs min-w-[650px]">
               <thead>
-                <tr className="bg-slate-100/90 dark:bg-slate-800/90 border-b border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 font-bold uppercase">
-                  <th className="p-3">رقم الفاتورة</th>
-                  <th className="p-3">اسم الفاتورة</th>
-                  <th className="p-3">التصنيف</th>
-                  <th className="p-3">المبلغ</th>
-                  <th className="p-3">التاريخ</th>
+                <tr className="bg-slate-100/90 dark:bg-slate-800/90 border-b border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 font-bold uppercase whitespace-nowrap">
+                  <th className="py-3.5 px-4">رقم الفاتورة</th>
+                  <th className="py-3.5 px-4">اسم الفاتورة</th>
+                  <th className="py-3.5 px-4">التصنيف</th>
+                  <th className="py-3.5 px-4">المبلغ</th>
+                  <th className="py-3.5 px-4">التاريخ</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+              <tbody className="divide-y divide-slate-200 dark:divide-slate-800 whitespace-nowrap">
                 {filtered.map((inv) => (
                   <tr key={inv.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                    <td className="p-3 font-bold font-mono text-slate-900 dark:text-white" dir="ltr text-right">
+                    <td className="py-3.5 px-4 font-bold font-mono text-slate-900 dark:text-white text-left" dir="ltr">
                       {inv.invoiceNumber}
                     </td>
-                    <td className="p-3 font-bold text-slate-900 dark:text-slate-100">
+                    <td className="py-3.5 px-4 font-bold text-slate-900 dark:text-slate-100">
                       {inv.name}
                     </td>
-                    <td className="p-3 font-semibold text-slate-700 dark:text-slate-300">
-                      {CATEGORY_LABELS[inv.category]}
+                    <td className="py-3.5 px-4 font-semibold text-slate-700 dark:text-slate-300">
+                      <span className="px-2.5 py-1 rounded-md text-[11px] font-bold bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                        {CATEGORY_LABELS[inv.category]}
+                      </span>
                     </td>
-                    <td className="p-3 font-extrabold text-slate-900 dark:text-white">
+                    <td className="py-3.5 px-4 font-extrabold text-slate-900 dark:text-white font-mono">
                       {formatCurrency(inv.amount, inv.currency)}
                     </td>
-                    <td className="p-3 text-slate-600 dark:text-slate-400 font-medium">
+                    <td className="py-3.5 px-4 text-slate-600 dark:text-slate-400 font-medium">
                       {formatShortDate(inv.date)}
                     </td>
                   </tr>

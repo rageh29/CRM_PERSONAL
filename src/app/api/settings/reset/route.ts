@@ -18,7 +18,10 @@ export async function POST(req: NextRequest) {
     // 2. Delete all employees
     await prisma.employee.deleteMany({});
 
-    // 3. Delete all non-SUPER_ADMIN users
+    // 3. Clear activity logs first to satisfy foreign key constraint
+    await prisma.activityLog.deleteMany({});
+
+    // 4. Delete all non-SUPER_ADMIN users
     await prisma.user.deleteMany({
       where: {
         role: {
@@ -26,9 +29,6 @@ export async function POST(req: NextRequest) {
         },
       },
     });
-
-    // 4. Clear activity logs
-    await prisma.activityLog.deleteMany({});
 
     // 5. Create fresh log entry for the reset
     if (userId) {

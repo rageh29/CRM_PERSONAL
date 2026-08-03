@@ -5,7 +5,7 @@ import { AuthProvider } from "@/components/providers/AuthProvider";
 import { ToastProvider } from "@/components/providers/ToastProvider";
 
 export const metadata: Metadata = {
-  title: "منصة الإدارة المالية — خالد الشهراني",
+  title: " الإدارة المالية — خالد الشهراني",
   description: "نظام إدارة مالية وفواتير وتحليلات احترافي",
 };
 

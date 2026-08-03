@@ -15,7 +15,7 @@ export function formatCurrency(amount: number, currency: string = 'SAR'): string
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
-  return formatter.format(amount);
+  return formatter.format(amount).replace(/ر\.س\./g, 'ر.س').replace(/ر\.س/g, 'ر.س');
 }
 
 // Format date in Arabic
