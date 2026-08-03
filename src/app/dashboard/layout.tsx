@@ -75,12 +75,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             {/* Light Theme Logo */}
             <img
               src="/logo-light.png"
+              onError={(e) => { (e.target as HTMLImageElement).src = '/logo-light.PNG'; }}
               alt="شعار المنصة"
               className="h-11 w-auto object-contain dark:hidden flex-shrink-0"
             />
             {/* Dark Theme Logo */}
             <img
               src="/logo-night.png"
+              onError={(e) => { (e.target as HTMLImageElement).src = '/logo-night.PNG'; }}
               alt="شعار المنصة"
               className="h-11 w-auto object-contain hidden dark:block flex-shrink-0 drop-shadow-md"
             />

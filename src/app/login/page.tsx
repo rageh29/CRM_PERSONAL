@@ -3,11 +3,15 @@
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import logoLight from '../../../public/logo-light.png';
+import logoNight from '../../../public/logo-night.png';
 
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -43,16 +47,24 @@ export default function LoginPage() {
         {/* Header */}
         <div className="text-center mb-6">
           <div className="flex items-center justify-center gap-3 mb-3">
-            <img
-              src="/logo-light.png"
-              alt="شعار المنصة"
-              className="h-14 w-auto object-contain dark:hidden flex-shrink-0"
-            />
-            <img
-              src="/logo-night.png"
-              alt="شعار المنصة"
-              className="h-14 w-auto object-contain hidden dark:block flex-shrink-0 drop-shadow-md"
-            />
+            <div className="dark:hidden flex-shrink-0">
+              <Image
+                src={logoLight}
+                alt="شعار المنصة"
+                height={56}
+                className="h-14 w-auto object-contain"
+                priority
+              />
+            </div>
+            <div className="hidden dark:block flex-shrink-0">
+              <Image
+                src={logoNight}
+                alt="شعار المنصة"
+                height={56}
+                className="h-14 w-auto object-contain drop-shadow-md"
+                priority
+              />
+            </div>
             <div className="text-right">
               <h1 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                 الإدارة المالية
@@ -88,7 +100,7 @@ export default function LoginPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@shahrani.com"
+                placeholder=""
                 required
                 dir="ltr"
                 className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-md text-slate-900 dark:text-white text-sm placeholder:text-slate-400 text-left focus:outline-none focus:border-emerald-600 dark:focus:border-emerald-500 focus:ring-1 focus:ring-emerald-600 dark:focus:ring-emerald-500 transition-colors"
@@ -100,16 +112,36 @@ export default function LoginPage() {
               <label htmlFor="password" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                 كلمة المرور
               </label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                required
-                dir="ltr"
-                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-md text-slate-900 dark:text-white text-sm placeholder:text-slate-400 text-left focus:outline-none focus:border-emerald-600 dark:focus:border-emerald-500 focus:ring-1 focus:ring-emerald-600 dark:focus:ring-emerald-500 transition-colors"
-              />
+              <div className="relative">
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  required
+                  dir="ltr"
+                  className="w-full pr-10 pl-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-md text-slate-900 dark:text-white text-sm placeholder:text-slate-400 text-left focus:outline-none focus:border-emerald-600 dark:focus:border-emerald-500 focus:ring-1 focus:ring-emerald-600 dark:focus:ring-emerald-500 transition-colors"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  tabIndex={-1}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors p-1"
+                  title={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
+                >
+                  {showPassword ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.7} stroke="currentColor" className="w-4 h-4">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" />
+                    </svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.7} stroke="currentColor" className="w-4 h-4">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12c1.274-4.057 5.064-7 9.544-7s8.27 2.943 9.543 7c-1.274 4.057-5.064 7-9.543 7s-8.27-2.943-9.543-7z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
+                    </svg>
+                  )}
+                </button>
+              </div>
             </div>
 
             {/* Submit Button */}
@@ -122,16 +154,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Demo Login Credentials Box */}
-          <div className="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800">
-            <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 text-center mb-2">
-              بيانات الدخول التجريبية (Super Admin)
-            </p>
-            <div className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-md p-2.5 text-xs text-slate-600 dark:text-slate-300 space-y-1 font-mono text-center" dir="ltr">
-              <p><span className="text-slate-400">Email:</span> admin@shahrani.com</p>
-              <p><span className="text-slate-400">Password:</span> admin123</p>
-            </div>
-          </div>
+       
         </div>
 
         <p className="text-center text-xs text-slate-400 dark:text-slate-600 mt-5">
