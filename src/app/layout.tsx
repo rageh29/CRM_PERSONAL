@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { AuthProvider } from "@/components/providers/AuthProvider";
@@ -7,6 +7,13 @@ import { ToastProvider } from "@/components/providers/ToastProvider";
 export const metadata: Metadata = {
   title: "منصة الإدارة المالية — خالد الشهراني",
   description: "نظام إدارة مالية وفواتير وتحليلات احترافي",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({
