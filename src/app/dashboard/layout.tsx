@@ -74,13 +74,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <Link href="/dashboard" className="flex items-center gap-3">
             {/* Light Theme Logo */}
             <img
-              src="/logo-light.PNG"
+              src="/logo-light.png"
               alt="شعار المنصة"
               className="h-11 w-auto object-contain dark:hidden flex-shrink-0"
             />
             {/* Dark Theme Logo */}
             <img
-              src="/logo-light.PNG"
+              src="/logo-night.png"
               alt="شعار المنصة"
               className="h-11 w-auto object-contain hidden dark:block flex-shrink-0 drop-shadow-md"
             />
@@ -174,12 +174,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </button>
               <Link href="/dashboard" className="flex items-center gap-2">
                 <img
-                  src="/logo-light.PNG"
+                  src="/logo-light.png"
                   alt="شعار المنصة"
                   className="h-8 w-auto object-contain dark:hidden flex-shrink-0"
                 />
                 <img
-                  src="/logo-night.PNG"
+                  src="/logo-night.png"
                   alt="شعار المنصة"
                   className="h-8 w-auto object-contain hidden dark:block flex-shrink-0 drop-shadow-sm"
                 />

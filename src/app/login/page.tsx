@@ -44,12 +44,12 @@ export default function LoginPage() {
         <div className="text-center mb-6">
           <div className="flex items-center justify-center gap-3 mb-3">
             <img
-              src="/logo-light.PNG"
+              src="/logo-light.png"
               alt="شعار المنصة"
               className="h-14 w-auto object-contain dark:hidden flex-shrink-0"
             />
             <img
-              src="/logo-night.PNG"
+              src="/logo-night.png"
               alt="شعار المنصة"
               className="h-14 w-auto object-contain hidden dark:block flex-shrink-0 drop-shadow-md"
             />
