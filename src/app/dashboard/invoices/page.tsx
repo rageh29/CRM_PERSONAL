@@ -3,6 +3,9 @@ import { InvoiceList } from '@/features/invoices/InvoiceList';
 import { auth } from '@/lib/auth';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function InvoicesPage() {
   const session = await auth();
   const userRole = (session?.user as any)?.role as string || 'EMPLOYEE';
