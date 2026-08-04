@@ -54,7 +54,7 @@ export function ReportsClient({ invoices }: { invoices: any[] }) {
       </head>
       <body>
         <div class="header">
-          <div class="logo">الإدارة المالية — خالد الشهراني</div>
+          <div class="logo">نظام ايرور المحاسبي</div>
           <div class="sub">تقرير الفواتير — ${filtered.length} فاتورة (شهر ${month} / ${year})</div>
         </div>
         <table>
@@ -62,7 +62,7 @@ export function ReportsClient({ invoices }: { invoices: any[] }) {
           <tbody>${rows}</tbody>
         </table>
         <div class="total">الإجمالي: ${formatCurrency(total)}</div>
-        <div class="footer">تم إنشاء هذا التقرير بواسطة منصة الإدارة المالية</div>
+        <div class="footer">تم إنشاء هذا التقرير بواسطة نظام ايرور المحاسبي</div>
       </body>
       </html>
     `);

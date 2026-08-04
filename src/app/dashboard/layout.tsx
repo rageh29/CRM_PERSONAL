@@ -89,11 +89,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             />
             <div className="flex flex-col min-w-0">
               <h2 className="font-extrabold text-sm text-slate-900 dark:text-white leading-tight truncate">
-                الإدارة المالية
+                نظام ايرور المحاسبي
               </h2>
-              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 truncate">
-                خالد الشهراني
-              </p>
             </div>
           </Link>
 
@@ -187,8 +184,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   className="h-8 w-auto object-contain hidden dark:block flex-shrink-0 drop-shadow-sm"
                 />
                 <div className="flex flex-col min-w-0">
-                  <span className="font-extrabold text-xs text-slate-900 dark:text-white leading-tight">الإدارة المالية</span>
-                  <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">خالد الشهراني</span>
+                  <span className="font-extrabold text-xs text-slate-900 dark:text-white leading-tight">نظام ايرور المحاسبي</span>
                 </div>
               </Link>
             </div>

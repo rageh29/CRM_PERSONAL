@@ -5,8 +5,8 @@ import { AuthProvider } from "@/components/providers/AuthProvider";
 import { ToastProvider } from "@/components/providers/ToastProvider";
 
 export const metadata: Metadata = {
-  title: " الإدارة المالية — خالد الشهراني",
-  description: "نظام إدارة مالية وفواتير وتحليلات احترافي",
+  title: "نظام ايرور المحاسبي",
+  description: "نظام ايرور المحاسبي لإدارة الفواتير والتحليلات المالية",
 };
 
 export const viewport: Viewport = {

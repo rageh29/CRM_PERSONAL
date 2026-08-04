@@ -103,8 +103,7 @@ export function InvoiceList({ invoices, userRole, userPermissions = [] }: Invoic
       <body>
         <div class="header">
           <div>
-            <div class="logo">منصة الإدارة المالية</div>
-            <div style="font-size:12px;color:#475569;margin-top:4px;">خالد الشهراني</div>
+            <div class="logo">نظام ايرور المحاسبي</div>
           </div>
           <div class="info">
             <div class="inv-num">${inv.invoiceNumber}</div>
@@ -122,7 +121,7 @@ export function InvoiceList({ invoices, userRole, userPermissions = [] }: Invoic
           </table>
         </div>
         <div class="total">الإجمالي: ${formatCurrency(inv.amount, inv.currency)}</div>
-        <div class="footer">تم إنشاء هذه الفاتورة بواسطة منصة الإدارة المالية — خالد الشهراني</div>
+        <div class="footer">تم إنشاء هذه الفاتورة بواسطة نظام ايرور المحاسبي</div>
       </body>
       </html>
     `);

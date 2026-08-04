@@ -26,7 +26,7 @@ export function DashboardClient({ stats, monthlyData, recentInvoices, bestWorst 
     setIsMorning(hour < 12);
   }, []);
 
-  const userName = session?.user?.name || 'خالد الشهراني';
+  const userName = session?.user?.name || 'المستخدم';
 
   return (
     <div className="space-y-5 animate-fade-in">

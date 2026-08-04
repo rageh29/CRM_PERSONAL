@@ -67,11 +67,8 @@ export default function LoginPage() {
             </div>
             <div className="text-right">
               <h1 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-                الإدارة المالية
+                نظام ايرور المحاسبي
               </h1>
-              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-                خالد الشهراني
-              </p>
             </div>
           </div>
           <p className="text-slate-400 dark:text-slate-500 text-xs font-semibold">
@@ -158,7 +155,7 @@ export default function LoginPage() {
         </div>
 
         <p className="text-center text-xs font-semibold text-emerald-800 dark:text-emerald-400/80 mt-5">
-          منصة خالد الشهراني © {new Date().getFullYear()}
+          نظام ايرور المحاسبي © {new Date().getFullYear()}
         </p>
       </div>
     </div>
