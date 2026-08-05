@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { deleteInvoice } from '@/features/invoices/actions';
-import { formatCurrency, formatShortDate, CATEGORY_LABELS, CURRENCY_LABELS } from '@/lib/utils';
+import { formatCurrency, formatShortDate, CATEGORY_LABELS, CURRENCY_LABELS, printHtml } from '@/lib/utils';
 import { hasPermission } from '@/lib/types';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { useToast } from '@/components/providers/ToastProvider';
@@ -75,9 +75,7 @@ export function InvoiceList({ invoices, userRole, userPermissions = [] }: Invoic
   };
 
   const handlePrint = (inv: any) => {
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) return;
-    printWindow.document.write(`
+    const htmlContent = `
       <!DOCTYPE html>
       <html dir="rtl" lang="ar">
       <head>
@@ -124,9 +122,8 @@ export function InvoiceList({ invoices, userRole, userPermissions = [] }: Invoic
         <div class="footer">تم إنشاء هذه الفاتورة بواسطة نظام ايرور المحاسبي</div>
       </body>
       </html>
-    `);
-    printWindow.document.close();
-    printWindow.print();
+    `;
+    printHtml(htmlContent);
   };
 
   return (

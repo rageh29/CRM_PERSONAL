@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { formatCurrency, CATEGORY_LABELS, formatShortDate } from '@/lib/utils';
+import { formatCurrency, CATEGORY_LABELS, formatShortDate, printHtml } from '@/lib/utils';
 
 export function ReportsClient({ invoices }: { invoices: any[] }) {
   const [category, setCategory] = useState('');
@@ -19,9 +19,6 @@ export function ReportsClient({ invoices }: { invoices: any[] }) {
   const total = filtered.reduce((a, i) => a + i.amount, 0);
 
   const handlePrintAll = () => {
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) return;
-
     const rows = filtered.map((inv) => `
       <tr>
         <td>${inv.invoiceNumber}</td>
@@ -32,7 +29,7 @@ export function ReportsClient({ invoices }: { invoices: any[] }) {
       </tr>
     `).join('');
 
-    printWindow.document.write(`
+    const htmlContent = `
       <!DOCTYPE html>
       <html dir="rtl" lang="ar">
       <head>
@@ -65,9 +62,8 @@ export function ReportsClient({ invoices }: { invoices: any[] }) {
         <div class="footer">تم إنشاء هذا التقرير بواسطة نظام ايرور المحاسبي</div>
       </body>
       </html>
-    `);
-    printWindow.document.close();
-    printWindow.print();
+    `;
+    printHtml(htmlContent);
   };
 
   return (

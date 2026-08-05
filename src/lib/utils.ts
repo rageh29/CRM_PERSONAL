@@ -108,6 +108,47 @@ export function calculatePercentageChange(current: number, previous: number): nu
   return ((current - previous) / previous) * 100;
 }
 
+// Universal print helper for iOS Safari, Android, and Desktop
+export function printHtml(htmlContent: string) {
+  if (typeof window === 'undefined') return;
+
+  // Remove existing print iframe if present
+  const existingFrame = document.getElementById('print-iframe');
+  if (existingFrame) {
+    existingFrame.remove();
+  }
+
+  const iframe = document.createElement('iframe');
+  iframe.id = 'print-iframe';
+  iframe.style.position = 'fixed';
+  iframe.style.right = '0';
+  iframe.style.bottom = '0';
+  iframe.style.width = '0';
+  iframe.style.height = '0';
+  iframe.style.border = '0';
+  iframe.style.visibility = 'hidden';
+
+  document.body.appendChild(iframe);
+
+  const doc = iframe.contentWindow?.document || iframe.contentDocument;
+  if (!doc) return;
+
+  doc.open();
+  doc.write(htmlContent);
+  doc.close();
+
+  // On iOS Safari, wait briefly for layout & fonts before triggering print dialog
+  setTimeout(() => {
+    try {
+      iframe.contentWindow?.focus();
+      iframe.contentWindow?.print();
+    } catch (err) {
+      console.error('Print failed:', err);
+    }
+  }, 350);
+}
+
+
 // Get month name in Arabic
 export function getArabicMonth(month: number): string {
   const months = [
