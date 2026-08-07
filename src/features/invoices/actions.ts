@@ -6,22 +6,23 @@ import { invoiceSchema, type InvoiceInput } from '@/lib/validations';
 import { generateInvoiceNumber } from '@/lib/utils';
 import { revalidatePath } from 'next/cache';
 
-export async function createInvoice(data: InvoiceInput & { attachment?: string }) {
+async function getSessionTenant() {
   const session = await auth();
-  if (!session?.user) throw new Error('غير مصرح');
+  if (!session?.user) throw new Error('غير مصرح لك بإجراء هذه العملية');
+  const user = session.user as any;
+  const isMasterAdmin = Boolean(user.isMasterAdmin || user.role === 'MASTER_ADMIN');
+  return { userId: user.id as string, tenantId: user.tenantId as string | null, isMasterAdmin };
+}
+
+export async function createInvoice(data: InvoiceInput & { attachment?: string }) {
+  const { userId, tenantId } = await getSessionTenant();
 
   const validated = invoiceSchema.parse(data);
 
   // Generate unique invoice number safely
-  const count = await prisma.invoice.count();
+  const count = await prisma.invoice.count({ where: tenantId ? { tenantId } : {} });
   let counter = count + 1;
   let invoiceNumber = generateInvoiceNumber(counter);
-  let existing = await prisma.invoice.findUnique({ where: { invoiceNumber } });
-  while (existing) {
-    counter++;
-    invoiceNumber = generateInvoiceNumber(counter);
-    existing = await prisma.invoice.findUnique({ where: { invoiceNumber } });
-  }
 
   const invoice = await prisma.invoice.create({
     data: {
@@ -34,7 +35,8 @@ export async function createInvoice(data: InvoiceInput & { attachment?: string }
       date: new Date(validated.date),
       employeeId: validated.employeeId || null,
       attachment: data.attachment || null,
-      createdById: (session.user as any).id,
+      createdById: userId,
+      tenantId: tenantId || null,
     },
   });
 
@@ -45,7 +47,8 @@ export async function createInvoice(data: InvoiceInput & { attachment?: string }
       entityType: 'Invoice',
       entityId: invoice.id,
       details: JSON.stringify({ name: invoice.name, amount: invoice.amount, category: invoice.category }),
-      userId: (session.user as any).id,
+      userId,
+      tenantId: tenantId || null,
     },
   });
 
@@ -55,10 +58,15 @@ export async function createInvoice(data: InvoiceInput & { attachment?: string }
 }
 
 export async function updateInvoice(id: string, data: InvoiceInput) {
-  const session = await auth();
-  if (!session?.user) throw new Error('غير مصرح');
+  const { userId, tenantId, isMasterAdmin } = await getSessionTenant();
 
   const validated = invoiceSchema.parse(data);
+
+  const existing = await prisma.invoice.findUnique({ where: { id } });
+  if (!existing) throw new Error('الفاتورة غير موجودة');
+  if (!isMasterAdmin && tenantId && existing.tenantId !== tenantId) {
+    throw new Error('غير مصرح لك بتعديل هذه الفاتورة');
+  }
 
   const invoice = await prisma.invoice.update({
     where: { id },
@@ -79,7 +87,8 @@ export async function updateInvoice(id: string, data: InvoiceInput) {
       entityType: 'Invoice',
       entityId: invoice.id,
       details: JSON.stringify({ name: invoice.name, amount: invoice.amount }),
-      userId: (session.user as any).id,
+      userId,
+      tenantId: tenantId || null,
     },
   });
 
@@ -90,8 +99,13 @@ export async function updateInvoice(id: string, data: InvoiceInput) {
 }
 
 export async function deleteInvoice(id: string) {
-  const session = await auth();
-  if (!session?.user) throw new Error('غير مصرح');
+  const { userId, tenantId, isMasterAdmin } = await getSessionTenant();
+
+  const existing = await prisma.invoice.findUnique({ where: { id } });
+  if (!existing) throw new Error('الفاتورة غير موجودة');
+  if (!isMasterAdmin && tenantId && existing.tenantId !== tenantId) {
+    throw new Error('غير مصرح لك بحذف هذه الفاتورة');
+  }
 
   const invoice = await prisma.invoice.delete({ where: { id } });
 
@@ -101,7 +115,8 @@ export async function deleteInvoice(id: string) {
       entityType: 'Invoice',
       entityId: id,
       details: JSON.stringify({ name: invoice.name, invoiceNumber: invoice.invoiceNumber }),
-      userId: (session.user as any).id,
+      userId,
+      tenantId: tenantId || null,
     },
   });
 
@@ -118,7 +133,15 @@ export async function getInvoices(filters?: {
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
 }) {
+  const session = await auth();
+  const user = session?.user as any;
+  const isMasterAdmin = Boolean(user?.isMasterAdmin || user?.role === 'MASTER_ADMIN');
+  const tenantId = user?.tenantId || null;
+
   const where: any = {};
+  if (!isMasterAdmin && tenantId) {
+    where.tenantId = tenantId;
+  }
 
   if (filters?.category) where.category = filters.category;
   if (filters?.currency) where.currency = filters.currency;
@@ -165,11 +188,23 @@ export async function getInvoices(filters?: {
 }
 
 export async function getInvoice(id: string) {
-  return prisma.invoice.findUnique({
+  const session = await auth();
+  const user = session?.user as any;
+  const isMasterAdmin = Boolean(user?.isMasterAdmin || user?.role === 'MASTER_ADMIN');
+  const tenantId = user?.tenantId || null;
+
+  const invoice = await prisma.invoice.findUnique({
     where: { id },
     include: {
       createdBy: { select: { name: true, email: true } },
       employee: { select: { name: true, position: true } },
     },
   });
+
+  if (!invoice) return null;
+  if (!isMasterAdmin && tenantId && invoice.tenantId !== tenantId) {
+    return null;
+  }
+
+  return invoice;
 }

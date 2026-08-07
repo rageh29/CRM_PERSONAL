@@ -1,10 +1,20 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
+import { auth } from '@/lib/auth';
 import { calculatePercentageChange, getArabicMonth } from '@/lib/utils';
 import type { DashboardStats, MonthlyData, BestWorstMonth } from '@/lib/types';
 
+async function getTenantWhere() {
+  const session = await auth();
+  const user = session?.user as any;
+  const isMasterAdmin = Boolean(user?.isMasterAdmin || user?.role === 'MASTER_ADMIN');
+  const tenantId = user?.tenantId || null;
+  return !isMasterAdmin && tenantId ? { tenantId } : {};
+}
+
 export async function getDashboardStats(): Promise<DashboardStats> {
+  const tenantWhere = await getTenantWhere();
   const now = new Date();
   const currentMonth = now.getMonth();
   const currentYear = now.getFullYear();
@@ -16,12 +26,12 @@ export async function getDashboardStats(): Promise<DashboardStats> {
 
   // Current month totals
   const currentInvoices = await prisma.invoice.findMany({
-    where: { date: { gte: startOfMonth, lte: endOfMonth } },
+    where: { ...tenantWhere, date: { gte: startOfMonth, lte: endOfMonth } },
   });
 
   // Previous month totals
   const prevInvoices = await prisma.invoice.findMany({
-    where: { date: { gte: startOfPrevMonth, lte: endOfPrevMonth } },
+    where: { ...tenantWhere, date: { gte: startOfPrevMonth, lte: endOfPrevMonth } },
   });
 
   const sum = (invoices: typeof currentInvoices, category: string) =>
@@ -37,7 +47,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
   const prevReturn = sum(prevInvoices, 'RETURN');
   const prevSalary = sum(prevInvoices, 'SALARY');
 
-  const totalInvoiceCount = await prisma.invoice.count();
+  const totalInvoiceCount = await prisma.invoice.count({ where: tenantWhere });
 
   return {
     totalRevenue,
@@ -54,6 +64,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
 }
 
 export async function getMonthlyData(year?: number): Promise<MonthlyData[]> {
+  const tenantWhere = await getTenantWhere();
   const targetYear = year || new Date().getFullYear();
   const data: MonthlyData[] = [];
 
@@ -62,7 +73,7 @@ export async function getMonthlyData(year?: number): Promise<MonthlyData[]> {
     const end = new Date(targetYear, month + 1, 0, 23, 59, 59);
 
     const invoices = await prisma.invoice.findMany({
-      where: { date: { gte: start, lte: end } },
+      where: { ...tenantWhere, date: { gte: start, lte: end } },
     });
 
     data.push({
@@ -78,7 +89,9 @@ export async function getMonthlyData(year?: number): Promise<MonthlyData[]> {
 }
 
 export async function getRecentInvoices(limit: number = 5) {
+  const tenantWhere = await getTenantWhere();
   return prisma.invoice.findMany({
+    where: tenantWhere,
     orderBy: { createdAt: 'desc' },
     take: limit,
     include: { createdBy: { select: { name: true } } },

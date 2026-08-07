@@ -6,7 +6,7 @@ import { signOut, useSession } from 'next-auth/react';
 import { useTheme } from 'next-themes';
 import { useState } from 'react';
 import { ROLE_LABELS } from '@/lib/utils';
-import { hasPermission, type UserRole } from '@/lib/types';
+import { hasPermission } from '@/lib/types';
 
 const NAV_ITEMS = [
   { href: '/dashboard', label: 'الرئيسية', icon: 'home', permission: 'invoices:view' },
@@ -58,11 +58,26 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const { data: session } = useSession();
   const { theme, setTheme } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const userRole = (session?.user as any)?.role as string || 'EMPLOYEE';
-  const userPermissions = (session?.user as any)?.permissions || [];
 
-  const filteredNav = NAV_ITEMS.filter(item => hasPermission(userRole, userPermissions, item.permission));
-  const filteredMobileNav = MOBILE_NAV.filter(item => item.isMenu || hasPermission(userRole, userPermissions, item.permission));
+  const user = session?.user as any;
+  const userRole = user?.role as string || 'EMPLOYEE';
+  const isMasterAdmin = Boolean(user?.isMasterAdmin || userRole === 'MASTER_ADMIN');
+  const tenantName = user?.tenantName || null;
+  const userPermissions = user?.permissions || [];
+
+  // Dynamic Store Title
+  const platformTitle = tenantName ? `نظام ${tenantName} المحاسبي` : 'نظام ايرور المحاسبي';
+
+  // Include Master Admin Nav Link if user is Master Admin
+  const navItems = isMasterAdmin
+    ? [
+        { href: '/dashboard/master', label: 'لوحة المالك (أكواد التفعيل)', icon: 'shield', permission: '*' },
+        ...NAV_ITEMS,
+      ]
+    : NAV_ITEMS;
+
+  const filteredNav = navItems.filter((item) => item.permission === '*' || hasPermission(userRole, userPermissions, item.permission));
+  const filteredMobileNav = MOBILE_NAV.filter((item) => item.isMenu || hasPermission(userRole, userPermissions, item.permission));
 
   return (
     <div className="flex min-h-screen">
@@ -88,8 +103,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               className="h-11 w-auto object-contain hidden dark:block flex-shrink-0 drop-shadow-md"
             />
             <div className="flex flex-col min-w-0">
-              <h2 className="font-extrabold text-sm text-slate-900 dark:text-white leading-tight truncate">
-                نظام ايرور المحاسبي
+              <h2 className="font-extrabold text-sm text-slate-900 dark:text-white leading-tight truncate" title={platformTitle}>
+                {platformTitle}
               </h2>
             </div>
           </Link>
@@ -132,7 +147,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
             <div className="min-w-0">
               <p className="text-xs font-bold text-slate-900 dark:text-white truncate">{session?.user?.name}</p>
-              <p className="text-[11px] text-slate-500 dark:text-amber-400 font-medium">{ROLE_LABELS[userRole] || userRole}</p>
+              <p className="text-[11px] text-slate-500 dark:text-amber-400 font-medium">
+                {isMasterAdmin ? 'المالك الرئيسي' : (ROLE_LABELS[userRole] || userRole)}
+              </p>
             </div>
           </div>
 
@@ -184,7 +201,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   className="h-8 w-auto object-contain hidden dark:block flex-shrink-0 drop-shadow-sm"
                 />
                 <div className="flex flex-col min-w-0">
-                  <span className="font-extrabold text-xs text-slate-900 dark:text-white leading-tight">نظام ايرور المحاسبي</span>
+                  <span className="font-extrabold text-xs text-slate-900 dark:text-white leading-tight truncate">{platformTitle}</span>
                 </div>
               </Link>
             </div>

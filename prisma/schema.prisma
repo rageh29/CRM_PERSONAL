@@ -11,27 +11,70 @@ datasource db {
 // MODELS
 // ═══════════════════════════════════════
 
+model Tenant {
+  id                 String    @id @default(uuid())
+  name               String    // اسم المتجر / الشركة
+  ownerName          String    // اسم التاجر / المالك
+  phone              String?   // رقم الجوال
+  email              String?   // البريد الإلكتروني
+  status             String    @default("ACTIVE") // ACTIVE, SUSPENDED, EXPIRED
+  subscriptionEndsAt DateTime? // تاريخ انتهاء الاشتراك
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  users           User[]
+  invoices        Invoice[]
+  employees       Employee[]
+  activityLogs    ActivityLog[]
+  systemSettings  SystemSettings[]
+  activationCodes ActivationCode[]
+
+  @@map("tenants")
+}
+
+model ActivationCode {
+  id             String    @id @default(uuid())
+  code           String    @unique // e.g. "ERR-89A1-24BF-9901"
+  durationDays   Int       // عدد الأيام (30, 60, 365, etc.)
+  isUsed         Boolean   @default(false)
+  usedByTenantId String?
+  usedByTenant   Tenant?   @relation(fields: [usedByTenantId], references: [id])
+  usedAt         DateTime?
+  note           String?   // ملاحظة (مثل اسم العميل أو الدفعة)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([code])
+  @@map("activation_codes")
+}
+
 model User {
-  id        String   @id @default(uuid())
-  name      String
-  email     String   @unique
-  password  String
-  role        String   @default("EMPLOYEE") // SUPER_ADMIN, EMPLOYEE
-  permissions String   @default("[]") // JSON string of permission IDs
-  avatar      String?
-  isActive  Boolean  @default(true)
+  id            String   @id @default(uuid())
+  name          String
+  email         String   @unique
+  password      String
+  role          String   @default("EMPLOYEE") // MASTER_ADMIN, SUPER_ADMIN, EMPLOYEE
+  isMasterAdmin Boolean  @default(false)      // مالك النظام الرئيسي
+  permissions   String   @default("[]")       // JSON string of permission IDs
+  avatar        String?
+  isActive      Boolean  @default(true)
+
+  tenantId String?
+  tenant   Tenant? @relation(fields: [tenantId], references: [id])
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   invoices   Invoice[]
   activities ActivityLog[]
 
+  @@index([tenantId])
   @@map("users")
 }
 
 model Invoice {
   id            String   @id @default(uuid())
-  invoiceNumber String   @unique
+  invoiceNumber String   // رقم الفاتورة
   name          String
   description   String?
   amount        Float    @default(0)
@@ -39,6 +82,9 @@ model Invoice {
   category      String   // REVENUE, EXPENSE, RETURN, SALARY
   date          DateTime
   attachment    String?
+
+  tenantId String?
+  tenant   Tenant? @relation(fields: [tenantId], references: [id])
 
   createdById String
   createdBy   User   @relation(fields: [createdById], references: [id])
@@ -54,6 +100,7 @@ model Invoice {
   @@index([createdById])
   @@index([invoiceNumber])
   @@index([employeeId])
+  @@index([tenantId])
   @@map("invoices")
 }
 
@@ -67,16 +114,21 @@ model Employee {
   currency  String   @default("SAR")
   isActive  Boolean  @default(true)
   hireDate  DateTime @default(now())
+
+  tenantId String?
+  tenant   Tenant? @relation(fields: [tenantId], references: [id])
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   invoices Invoice[]
 
+  @@index([tenantId])
   @@map("employees")
 }
 
 model SystemSettings {
-  id              String   @id @default("default")
+  id              String   @id @default(uuid())
   companyName     String   @default("شركتي")
   companyLogo     String?
   primaryColor    String   @default("#6366f1")
@@ -85,9 +137,14 @@ model SystemSettings {
   contactPhone    String?
   contactAddress  String?
   defaultCurrency String   @default("SAR")
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
 
+  tenantId String?
+  tenant   Tenant? @relation(fields: [tenantId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
   @@map("system_settings")
 }
 
@@ -97,12 +154,18 @@ model ActivityLog {
   entityType String   // Invoice, Employee, User, Settings
   entityId   String?
   details    String?
-  userId     String
-  user       User     @relation(fields: [userId], references: [id])
-  createdAt  DateTime @default(now())
+
+  tenantId String?
+  tenant   Tenant? @relation(fields: [tenantId], references: [id])
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
 
   @@index([userId])
   @@index([entityType])
   @@index([createdAt])
+  @@index([tenantId])
   @@map("activity_logs")
 }
