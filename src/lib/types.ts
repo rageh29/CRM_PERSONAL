@@ -66,7 +66,7 @@ export function hasPermission(
   userPermissions: string[] | string,
   requiredPermission: string
 ): boolean {
-  if (userRole === 'SUPER_ADMIN') return true;
+  if (userRole === 'SUPER_ADMIN' || userRole === 'MASTER_ADMIN' || requiredPermission === '*') return true;
 
   let perms: string[] = [];
   if (Array.isArray(userPermissions)) {
@@ -78,6 +78,8 @@ export function hasPermission(
       perms = [];
     }
   }
+
+  if (perms.includes('ALL')) return true;
 
   // Basic view permission is granted if they have any permission or explicit invoices:view
   if (requiredPermission === 'view' || requiredPermission === 'invoices:view') {

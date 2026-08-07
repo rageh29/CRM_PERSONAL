@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import Image from 'next/image';
 import logoLight from '../../../public/logo-light.png';
 import logoNight from '../../../public/logo-night.png';
@@ -151,7 +152,12 @@ export default function LoginPage() {
             </button>
           </form>
 
-       
+          <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 text-center text-xs">
+            <span className="text-slate-500 dark:text-slate-400">تاجر جديد ولديك كود تفعيل؟ </span>
+            <Link href="/register" className="font-bold text-emerald-600 dark:text-emerald-400 hover:underline">
+              أنشئ حسابك وفعل كودك من هنا 🔑
+            </Link>
+          </div>
         </div>
 
         <p className="text-center text-xs font-semibold text-emerald-800 dark:text-emerald-400/80 mt-5">
