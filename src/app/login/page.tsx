@@ -5,8 +5,8 @@ import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import logoLight from '../../../public/logo-light.png';
-import logoNight from '../../../public/logo-night.png';
+import logoLight from '../../../public/icon logo.png';
+import logoNight from '../../../public/icon logo.png';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -68,8 +68,7 @@ export default function LoginPage() {
             </div>
             <div className="text-right">
               <h1 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-                نظام ايرور المحاسبي
-              </h1>
+High System              </h1>
             </div>
           </div>
           <p className="text-slate-400 dark:text-slate-500 text-xs font-semibold">
@@ -154,14 +153,20 @@ export default function LoginPage() {
 
           <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 text-center text-xs">
             <span className="text-slate-500 dark:text-slate-400">تاجر جديد ولديك كود تفعيل؟ </span>
-            <Link href="/register" className="font-bold text-emerald-600 dark:text-emerald-400 hover:underline">
-              أنشئ حسابك وفعل كودك من هنا 🔑
-            </Link>
+            <a
+              href="/register"
+              className="font-bold text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer inline-flex items-center gap-1 mt-1 sm:mt-0"
+            >
+              <span>أنشئ حسابك وفعل كودك من هنا</span>
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+              </svg>
+            </a>
           </div>
         </div>
 
         <p className="text-center text-xs font-semibold text-emerald-800 dark:text-emerald-400/80 mt-5">
-          نظام ايرور المحاسبي © {new Date().getFullYear()}
+          High System © {new Date().getFullYear()}
         </p>
       </div>
     </div>

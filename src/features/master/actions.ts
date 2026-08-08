@@ -98,11 +98,21 @@ export async function deleteActivationCode(codeId: string) {
 
   const codeObj = await prisma.activationCode.findUnique({ where: { id: codeId } });
   if (!codeObj) throw new Error('الكود غير موجود');
-  if (codeObj.isUsed) throw new Error('لا يمكن حذف كود تم استخدامه لتفعيل متجر');
 
   await prisma.activationCode.delete({ where: { id: codeId } });
   revalidatePath('/dashboard/master');
   return { success: true };
+}
+
+export async function deleteAllUsedCodes() {
+  await checkMasterAdmin();
+
+  const result = await prisma.activationCode.deleteMany({
+    where: { isUsed: true },
+  });
+
+  revalidatePath('/dashboard/master');
+  return { success: true, count: result.count };
 }
 
 export async function toggleTenantStatus(tenantId: string, status: 'ACTIVE' | 'SUSPENDED') {
@@ -139,6 +149,69 @@ export async function extendTenantSubscription(tenantId: string, extraDays: numb
 
   revalidatePath('/dashboard/master');
   return { success: true, newEndDate };
+}
+
+export async function updateTenantData(
+  tenantId: string,
+  data: {
+    name?: string;
+    ownerName?: string;
+    email?: string;
+    phone?: string;
+    subscriptionEndsAt?: string;
+  }
+) {
+  await checkMasterAdmin();
+
+  const updateFields: any = {};
+  if (data.name && data.name.trim()) updateFields.name = data.name.trim();
+  if (data.ownerName && data.ownerName.trim()) updateFields.ownerName = data.ownerName.trim();
+  if (data.phone !== undefined) updateFields.phone = data.phone?.trim() || null;
+  if (data.email && data.email.trim()) {
+    const cleanEmail = data.email.trim().toLowerCase();
+    updateFields.email = cleanEmail;
+    // Also update super admin user email for this tenant if present
+    await prisma.user.updateMany({
+      where: { tenantId, role: 'SUPER_ADMIN' },
+      data: { email: cleanEmail, name: data.ownerName?.trim() || undefined },
+    });
+  }
+  if (data.subscriptionEndsAt) {
+    updateFields.subscriptionEndsAt = new Date(data.subscriptionEndsAt);
+  }
+
+  await prisma.tenant.update({
+    where: { id: tenantId },
+    data: updateFields,
+  });
+
+  revalidatePath('/dashboard/master');
+  return { success: true };
+}
+
+export async function updateActivationCodeData(
+  codeId: string,
+  data: {
+    durationDays?: number;
+    note?: string;
+  }
+) {
+  await checkMasterAdmin();
+
+  const codeObj = await prisma.activationCode.findUnique({ where: { id: codeId } });
+  if (!codeObj) throw new Error('الكود غير موجود');
+
+  const updateFields: any = {};
+  if (data.durationDays && data.durationDays > 0) updateFields.durationDays = Number(data.durationDays);
+  if (data.note !== undefined) updateFields.note = data.note?.trim() || null;
+
+  await prisma.activationCode.update({
+    where: { id: codeId },
+    data: updateFields,
+  });
+
+  revalidatePath('/dashboard/master');
+  return { success: true };
 }
 
 export async function deleteTenant(tenantId: string) {

@@ -9,14 +9,24 @@ export const revalidate = 0;
 
 export default async function ActivityPage() {
   const session = await auth();
-  const userRole = (session?.user as any)?.role as string || 'EMPLOYEE';
-  const userPermissions = (session?.user as any)?.permissions || [];
+  const user = session?.user as any;
+  const userRole = user?.role as string || 'EMPLOYEE';
+  const userPermissions = user?.permissions || [];
+  const isMasterAdmin = Boolean(user?.isMasterAdmin || userRole === 'MASTER_ADMIN');
+  const tenantId = user?.tenantId || null;
 
   if (!hasPermission(userRole, userPermissions, 'activity:view')) {
     redirect('/dashboard');
   }
 
+  // CRITICAL: Only fetch activity logs belonging to the same tenant (tenant isolation)
+  const where: any = {};
+  if (!isMasterAdmin && tenantId) {
+    where.tenantId = tenantId;
+  }
+
   const activities = await prisma.activityLog.findMany({
+    where,
     orderBy: { createdAt: 'desc' },
     take: 100,
     include: { user: { select: { name: true, role: true } } },

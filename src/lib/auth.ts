@@ -102,6 +102,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           token.tenantName = dbUser.tenant?.name || null;
           token.subscriptionEndsAt = dbUser.tenant?.subscriptionEndsAt ? dbUser.tenant.subscriptionEndsAt.toISOString() : null;
           token.permissions = dbUser.permissions;
+
+          // Do NOT store heavy base64 images in JWT cookie (prevents HTTP 431 Request Header Fields Too Large)
         } catch (e) {
           // If DB check fails, return existing token
         }

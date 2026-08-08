@@ -34,7 +34,7 @@ export function DashboardClient({ stats, monthlyData, recentInvoices, bestWorst 
       <div className="border-b border-slate-200 dark:border-slate-800 pb-4 space-y-1">
         <div className="flex items-center gap-2">
           <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white">
-            مرحباً {userName}، وبارك الله في رزقك ✨
+            مرحباً {userName}،  {mounted && isMorning ? 'صباح الخير' : 'مساء الخير'} 
           </h1>
 
           {/* Greeting Icon AFTER text */}

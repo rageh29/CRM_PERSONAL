@@ -6,28 +6,34 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
   const session = await auth();
-  const userId = (session?.user as any)?.id;
-  const userRole = (session?.user as any)?.role;
+  const user = session?.user as any;
+  const userId = user?.id;
+  const userRole = user?.role;
+  const isMasterAdmin = Boolean(user?.isMasterAdmin || userRole === 'MASTER_ADMIN');
+  const tenantId = user?.tenantId || null;
 
-  if (!session?.user || userRole !== 'SUPER_ADMIN') {
+  if (!session?.user || (!isMasterAdmin && userRole !== 'SUPER_ADMIN')) {
     return NextResponse.json({ error: 'غير مصرح لك بإجراء هذه العملية' }, { status: 403 });
   }
 
   try {
-    // 1. Clean existing invoices, employees, and non-admin users
-    await prisma.invoice.deleteMany({});
-    await prisma.employee.deleteMany({});
-    await prisma.activityLog.deleteMany({});
+    // CRITICAL: Scope operations to the user's own tenant (tenant isolation)
+    const scopeWhere = isMasterAdmin ? { tenantId: null } : { tenantId };
 
-    // 2. Create sample employees list
+    // 1. Clean existing data within tenant scope
+    await prisma.invoice.deleteMany({ where: scopeWhere as any });
+    await prisma.employee.deleteMany({ where: scopeWhere as any });
+    await prisma.activityLog.deleteMany({ where: scopeWhere as any });
+
+    // 2. Create sample employees scoped to the current tenant
     const emp1 = await prisma.employee.create({
-      data: { name: 'أحمد محمد', email: 'ahmed@company.com', phone: '+966501234567', position: 'مصمم غرافيك', salary: 5500, currency: 'SAR' },
+      data: { name: 'أحمد محمد', email: 'ahmed@company.com', phone: '+966501234567', position: 'مصمم غرافيك', salary: 5500, currency: 'SAR', tenantId } as any,
     });
     const emp2 = await prisma.employee.create({
-      data: { name: 'سارة علي', email: 'sara@company.com', phone: '+966509876543', position: 'مهندسة برمجيات', salary: 8500, currency: 'SAR' },
+      data: { name: 'سارة علي', email: 'sara@company.com', phone: '+966509876543', position: 'مهندسة برمجيات', salary: 8500, currency: 'SAR', tenantId } as any,
     });
     const emp3 = await prisma.employee.create({
-      data: { name: 'محمد خالد', email: 'mohammed@company.com', phone: '+966505555555', position: 'أخصائي تسويق', salary: 4800, currency: 'SAR' },
+      data: { name: 'محمد خالد', email: 'mohammed@company.com', phone: '+966505555555', position: 'أخصائي تسويق', salary: 4800, currency: 'SAR', tenantId } as any,
     });
 
     const employees = [emp1, emp2, emp3];
@@ -40,7 +46,6 @@ export async function POST(req: NextRequest) {
     for (let monthOffset = 0; monthOffset < 3; monthOffset++) {
       const monthDate = new Date(now.getFullYear(), now.getMonth() - monthOffset, 1);
 
-      // Revenues
       const revenues = [
         { name: 'إيراد تصميم هوية تجارية', amount: 18000, desc: 'عقد تصميم هويات واستشارات' },
         { name: 'إيراد تطوير نظام إلكتروني', amount: 32000, desc: 'تطوير وتسليم مشروع متكامل' },
@@ -53,19 +58,15 @@ export async function POST(req: NextRequest) {
           prisma.invoice.create({
             data: {
               invoiceNumber: `INV-${monthDate.getFullYear()}-${String(counter).padStart(5, '0')}`,
-              name: rev.name,
-              description: rev.desc,
-              amount: rev.amount,
-              currency: 'SAR',
-              category: 'REVENUE',
+              name: rev.name, description: rev.desc, amount: rev.amount,
+              currency: 'SAR', category: 'REVENUE',
               date: new Date(monthDate.getFullYear(), monthDate.getMonth(), 5 + Math.floor(Math.random() * 15)),
-              createdById: userId,
-            },
+              createdById: userId, tenantId,
+            } as any,
           })
         );
       }
 
-      // Expenses
       const expenses = [
         { name: 'إيجار المقر الرئيسي', amount: 4500, desc: 'إيجار شهري للمكتب' },
         { name: 'اشتراكات الخوادم والسحاب', amount: 1200, desc: 'استضافة خوادم AWS وVercel' },
@@ -78,51 +79,39 @@ export async function POST(req: NextRequest) {
           prisma.invoice.create({
             data: {
               invoiceNumber: `INV-${monthDate.getFullYear()}-${String(counter).padStart(5, '0')}`,
-              name: exp.name,
-              description: exp.desc,
-              amount: exp.amount,
-              currency: 'SAR',
-              category: 'EXPENSE',
+              name: exp.name, description: exp.desc, amount: exp.amount,
+              currency: 'SAR', category: 'EXPENSE',
               date: new Date(monthDate.getFullYear(), monthDate.getMonth(), 2 + Math.floor(Math.random() * 20)),
-              createdById: userId,
-            },
+              createdById: userId, tenantId,
+            } as any,
           })
         );
       }
 
-      // Returns
       counter++;
       invoicePromises.push(
         prisma.invoice.create({
           data: {
             invoiceNumber: `INV-${monthDate.getFullYear()}-${String(counter).padStart(5, '0')}`,
-            name: 'مرتجع خدمة دعم فني',
-            description: 'تسوية واسترجاع جزئي لعميل',
-            amount: 1500,
-            currency: 'SAR',
-            category: 'RETURN',
+            name: 'مرتجع خدمة دعم فني', description: 'تسوية واسترجاع جزئي لعميل',
+            amount: 1500, currency: 'SAR', category: 'RETURN',
             date: new Date(monthDate.getFullYear(), monthDate.getMonth(), 18),
-            createdById: userId,
-          },
+            createdById: userId, tenantId,
+          } as any,
         })
       );
 
-      // Salaries
       for (const emp of employees) {
         counter++;
         invoicePromises.push(
           prisma.invoice.create({
             data: {
               invoiceNumber: `INV-${monthDate.getFullYear()}-${String(counter).padStart(5, '0')}`,
-              name: `راتب ${emp.name}`,
-              description: `صرف راتب شهر ${monthDate.getMonth() + 1}`,
-              amount: emp.salary,
-              currency: 'SAR',
-              category: 'SALARY',
+              name: `راتب ${emp.name}`, description: `صرف راتب شهر ${monthDate.getMonth() + 1}`,
+              amount: emp.salary, currency: 'SAR', category: 'SALARY',
               date: new Date(monthDate.getFullYear(), monthDate.getMonth(), 27),
-              createdById: userId,
-              employeeId: emp.id,
-            },
+              createdById: userId, employeeId: emp.id, tenantId,
+            } as any,
           })
         );
       }
@@ -130,14 +119,13 @@ export async function POST(req: NextRequest) {
 
     await Promise.all(invoicePromises);
 
-    // 4. Log activity
     await prisma.activityLog.create({
       data: {
         action: 'CREATE',
         entityType: 'DemoDataSeed',
-        details: 'تم إعادة توليد وإنشاء البيانات التجريبية الشاملة في المنصة بنجاح',
-        userId,
-      },
+        details: 'تم إعادة توليد وإنشاء البيانات التجريبية بنجاح',
+        userId, tenantId,
+      } as any,
     });
 
     return NextResponse.json({

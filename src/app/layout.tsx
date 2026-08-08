@@ -5,8 +5,8 @@ import { AuthProvider } from "@/components/providers/AuthProvider";
 import { ToastProvider } from "@/components/providers/ToastProvider";
 
 export const metadata: Metadata = {
-  title: "نظام ايرور المحاسبي",
-  description: "نظام ايرور المحاسبي لإدارة الفواتير والتحليلات المالية",
+  title: "High System",
+  description: "High System",
 };
 
 export const viewport: Viewport = {

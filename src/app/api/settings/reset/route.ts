@@ -4,29 +4,36 @@ import { auth } from '@/lib/auth';
 
 export async function POST(req: NextRequest) {
   const session = await auth();
-  const userId = (session?.user as any)?.id;
-  const userRole = (session?.user as any)?.role;
+  const user = session?.user as any;
+  const userId = user?.id;
+  const userRole = user?.role;
+  const isMasterAdmin = Boolean(user?.isMasterAdmin || userRole === 'MASTER_ADMIN');
+  const tenantId = user?.tenantId || null;
 
-  if (!session?.user || userRole !== 'SUPER_ADMIN') {
+  // Only SUPER_ADMIN or MASTER_ADMIN can reset
+  if (!session?.user || (!isMasterAdmin && userRole !== 'SUPER_ADMIN')) {
     return NextResponse.json({ error: 'غير مصرح لك بإجراء هذه العملية' }, { status: 403 });
   }
 
   try {
-    // 1. Delete all invoices
-    await prisma.invoice.deleteMany({});
+    // CRITICAL: Scope deletion to the user's own tenant only (tenant isolation)
+    const scopeWhere = isMasterAdmin ? { tenantId: null } : { tenantId };
 
-    // 2. Delete all employees
-    await prisma.employee.deleteMany({});
+    // 1. Delete invoices scoped to tenant
+    await prisma.invoice.deleteMany({ where: scopeWhere as any });
 
-    // 3. Clear activity logs first to satisfy foreign key constraint
-    await prisma.activityLog.deleteMany({});
+    // 2. Delete employees scoped to tenant
+    await prisma.employee.deleteMany({ where: scopeWhere as any });
 
-    // 4. Delete all non-SUPER_ADMIN users
+    // 3. Clear activity logs scoped to tenant
+    await prisma.activityLog.deleteMany({ where: scopeWhere as any });
+
+    // 4. Delete all non-admin users within the same tenant
     await prisma.user.deleteMany({
       where: {
-        role: {
-          not: 'SUPER_ADMIN',
-        },
+        ...scopeWhere as any,
+        role: { not: isMasterAdmin ? 'MASTER_ADMIN' : 'SUPER_ADMIN' },
+        id: { not: userId },
       },
     });
 
@@ -36,15 +43,16 @@ export async function POST(req: NextRequest) {
         data: {
           action: 'DELETE',
           entityType: 'DemoDataReset',
-          details: 'تم حذف جميع البيانات التجريبية في المنصة مع الإبقاء على حساب السوبر أدمن فقط',
+          details: 'تم حذف جميع البيانات التجريبية مع الإبقاء على حساب الأدمن فقط',
           userId,
-        },
+          tenantId,
+        } as any,
       });
     }
 
     return NextResponse.json({
       success: true,
-      message: 'تم مسح كافة البيانات التجريبية بنجاح، وتفريغ الفواتير والموظفين والمستخدمين مع الإبقاء على حساب السوبر أدمن.',
+      message: 'تم مسح كافة البيانات التجريبية بنجاح، وتفريغ الفواتير والموظفين والمستخدمين مع الإبقاء على حسابك الإداري.',
     });
   } catch (error: any) {
     console.error('Reset Demo Data Error:', error);

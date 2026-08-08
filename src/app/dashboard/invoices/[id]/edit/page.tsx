@@ -1,6 +1,7 @@
 import { getInvoice } from '@/features/invoices/actions';
 import { InvoiceForm } from '@/features/invoices/InvoiceForm';
 import { prisma } from '@/lib/prisma';
+import { auth } from '@/lib/auth';
 import { notFound } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
@@ -15,8 +16,19 @@ export default async function EditInvoicePage({
 
   if (!invoice) notFound();
 
+  const session = await auth();
+  const user = session?.user as any;
+  const isMasterAdmin = Boolean(user?.isMasterAdmin || user?.role === 'MASTER_ADMIN');
+  const tenantId = user?.tenantId || null;
+
+  // CRITICAL: Only fetch employees belonging to the same tenant (tenant isolation)
+  const where: any = { isActive: true };
+  if (!isMasterAdmin && tenantId) {
+    where.tenantId = tenantId;
+  }
+
   const employees = await prisma.employee.findMany({
-    where: { isActive: true },
+    where,
     select: { id: true, name: true, position: true },
   });
 

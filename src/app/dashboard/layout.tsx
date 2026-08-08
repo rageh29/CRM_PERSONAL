@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
 import { useTheme } from 'next-themes';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ROLE_LABELS } from '@/lib/utils';
 import { hasPermission } from '@/lib/types';
 
@@ -55,9 +55,48 @@ function NavIcon({ name, className = "w-5 h-5" }: { name: string; className?: st
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const { theme, setTheme } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [tenantLogo, setTenantLogo] = useState<string | null>(null);
+  const [customStoreName, setCustomStoreName] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (status === 'authenticated') {
+      fetch('/api/settings/logo')
+        .then((res) => res.json())
+        .then((data) => {
+          if (data?.logo) setTenantLogo(data.logo);
+          if (data?.companyName) setCustomStoreName(data.companyName);
+        })
+        .catch(() => {});
+    }
+  }, [status, pathname]);
+
+  // Avoid layout shift/flickering by showing a smooth skeleton during session load
+  if (status === 'loading') {
+    return (
+      <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950 animate-pulse">
+        <aside className="fixed inset-y-0 start-0 z-50 w-64 bg-white dark:bg-slate-900 border-e border-slate-200 dark:border-slate-800/80 flex flex-col hidden lg:flex">
+          <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center gap-3">
+            <div className="w-11 h-11 bg-slate-200 dark:bg-slate-800 rounded-lg"></div>
+            <div className="h-4 w-32 bg-slate-200 dark:bg-slate-800 rounded"></div>
+          </div>
+          <div className="flex-1 p-3 space-y-3 mt-4">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="h-10 w-full bg-slate-100 dark:bg-slate-800/50 rounded-md"></div>
+            ))}
+          </div>
+        </aside>
+        <main className="flex-1 lg:ps-64 w-full">
+          <div className="p-6">
+            <div className="h-8 w-48 bg-slate-200 dark:bg-slate-800 rounded-md mb-6"></div>
+            <div className="h-64 w-full bg-slate-100 dark:bg-slate-900 rounded-xl"></div>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   const user = session?.user as any;
   const userRole = user?.role as string || 'EMPLOYEE';
@@ -65,8 +104,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const tenantName = user?.tenantName || null;
   const userPermissions = user?.permissions || [];
 
-  // Dynamic Store Title
-  const platformTitle = tenantName ? `نظام ${tenantName} المحاسبي` : 'نظام ايرور المحاسبي';
+  // Dynamic Store Title: "High System" for Master Admin, merchant store name for merchants
+  const platformTitle = isMasterAdmin
+    ? (customStoreName && customStoreName !== session?.user?.name && customStoreName !== 'نظام ايرور المحاسبي' ? customStoreName : 'High System')
+    : (customStoreName || tenantName || 'متجري');
 
   // Include Master Admin Nav Link if user is Master Admin
   const navItems = isMasterAdmin
@@ -88,20 +129,30 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Logo */}
         <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
           <Link href="/dashboard" className="flex items-center gap-3">
-            {/* Light Theme Logo */}
-            <img
-              src="/logo-light.png"
-              onError={(e) => { (e.target as HTMLImageElement).src = '/logo-light.PNG'; }}
-              alt="شعار المنصة"
-              className="h-11 w-auto object-contain dark:hidden flex-shrink-0"
-            />
-            {/* Dark Theme Logo */}
-            <img
-              src="/logo-night.png"
-              onError={(e) => { (e.target as HTMLImageElement).src = '/logo-night.PNG'; }}
-              alt="شعار المنصة"
-              className="h-11 w-auto object-contain hidden dark:block flex-shrink-0 drop-shadow-md"
-            />
+            {tenantLogo ? (
+              <img
+                src={tenantLogo}
+                alt="شعار المنصة"
+                className="h-11 w-11 object-contain flex-shrink-0 bg-slate-50 dark:bg-slate-800/50 rounded-lg p-1 border border-slate-200 dark:border-slate-700/50"
+              />
+            ) : isMasterAdmin ? (
+              <>
+                {/* Light Theme Default Logo for Master Admin */}
+                <img
+                  src="/icon logo.png"
+                  onError={(e) => { (e.target as HTMLImageElement).src = '/icon logo.png'; }}
+                  alt="شعار المنصة"
+                  className="h-11 w-auto object-contain dark:hidden flex-shrink-0"
+                />
+                {/* Dark Theme Default Logo for Master Admin */}
+                <img
+                  src="/icon logo.png"
+                  onError={(e) => { (e.target as HTMLImageElement).src = '/icon logo.png'; }}
+                  alt="شعار المنصة"
+                  className="h-11 w-auto object-contain hidden dark:block flex-shrink-0 drop-shadow-md"
+                />
+              </>
+            ) : null}
             <div className="flex flex-col min-w-0">
               <h2 className="font-extrabold text-sm text-slate-900 dark:text-white leading-tight truncate" title={platformTitle}>
                 {platformTitle}
@@ -190,16 +241,26 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <NavIcon name="menu" className="w-5 h-5" />
               </button>
               <Link href="/dashboard" className="flex items-center gap-2">
-                <img
-                  src="/logo-light.png"
-                  alt="شعار المنصة"
-                  className="h-8 w-auto object-contain dark:hidden flex-shrink-0"
-                />
-                <img
-                  src="/logo-night.png"
-                  alt="شعار المنصة"
-                  className="h-8 w-auto object-contain hidden dark:block flex-shrink-0 drop-shadow-sm"
-                />
+                {tenantLogo ? (
+                  <img
+                    src={tenantLogo}
+                    alt="شعار المنصة"
+                    className="h-8 w-8 object-contain flex-shrink-0 bg-slate-50 dark:bg-slate-800/50 rounded p-0.5 border border-slate-200 dark:border-slate-700/50"
+                  />
+                ) : isMasterAdmin ? (
+                  <>
+                    <img
+                      src="/icon logo.png"
+                      alt="شعار المنصة"
+                      className="h-8 w-auto object-contain dark:hidden flex-shrink-0"
+                    />
+                    <img
+                      src="/icon logo.png"
+                      alt="شعار المنصة"
+                      className="h-8 w-auto object-contain hidden dark:block flex-shrink-0 drop-shadow-sm"
+                    />
+                  </>
+                ) : null}
                 <div className="flex flex-col min-w-0">
                   <span className="font-extrabold text-xs text-slate-900 dark:text-white leading-tight truncate">{platformTitle}</span>
                 </div>

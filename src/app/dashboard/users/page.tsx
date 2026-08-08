@@ -9,14 +9,28 @@ export const revalidate = 0;
 
 export default async function UsersPage() {
   const session = await auth();
-  const userRole = (session?.user as any)?.role as string || 'EMPLOYEE';
-  const userPermissions = (session?.user as any)?.permissions || [];
+  const user = session?.user as any;
+  const userRole = user?.role as string || 'EMPLOYEE';
+  const userPermissions = user?.permissions || [];
+  const isMasterAdmin = Boolean(user?.isMasterAdmin || userRole === 'MASTER_ADMIN');
+  const tenantId = user?.tenantId || null;
 
   if (!hasPermission(userRole, userPermissions, 'users:manage')) {
     redirect('/dashboard');
   }
 
+  // CRITICAL: Tenant isolation
+  // Master Admin sees only platform-level users (tenantId is null) — NOT tenant merchants/employees
+  // Tenant admins see only their own tenant's users
+  const where: any = {};
+  if (isMasterAdmin) {
+    where.tenantId = null;
+  } else if (tenantId) {
+    where.tenantId = tenantId;
+  }
+
   const users = await prisma.user.findMany({
+    where,
     orderBy: { createdAt: 'desc' },
     select: {
       id: true,
@@ -26,6 +40,7 @@ export default async function UsersPage() {
       permissions: true,
       isActive: true,
       createdAt: true,
+      tenantId: true,
     },
   });
 
