@@ -84,7 +84,7 @@ async function main() {
           currency: 'SAR',
           category: 'REVENUE',
           date: new Date(month.getFullYear(), month.getMonth(), 5 + Math.floor(Math.random() * 20)),
-          createdById: admin.id,
+          createdById: masterAdmin.id,
         },
       }));
     }
@@ -108,7 +108,7 @@ async function main() {
           currency: 'SAR',
           category: 'EXPENSE',
           date: new Date(month.getFullYear(), month.getMonth(), 1 + Math.floor(Math.random() * 25)),
-          createdById: admin.id,
+          createdById: masterAdmin.id,
         },
       }));
     }
@@ -124,7 +124,7 @@ async function main() {
         currency: 'SAR',
         category: 'RETURN',
         date: new Date(month.getFullYear(), month.getMonth(), 15),
-        createdById: admin.id,
+        createdById: masterAdmin.id,
       },
     }));
 
@@ -140,7 +140,7 @@ async function main() {
           currency: 'SAR',
           category: 'SALARY',
           date: new Date(month.getFullYear(), month.getMonth(), 28),
-          createdById: admin.id,
+          createdById: masterAdmin.id,
           employeeId: emp.id,
         },
       }));
