@@ -10,20 +10,24 @@ async function main() {
   await prisma.invoice.deleteMany();
   await prisma.employee.deleteMany();
 
-  // Create Super Admin user
-  const adminPassword = await bcrypt.hash('admin123', 12);
-  const admin = await prisma.user.upsert({
-    where: { email: 'admin@shahrani.com' },
-    update: {},
+  // Create Master Admin user
+  const masterPassword = await bcrypt.hash('admin123', 12);
+  const masterAdmin = await prisma.user.upsert({
+    where: { email: 'master@highsystem.com' },
+    update: {
+      role: 'MASTER_ADMIN',
+      isMasterAdmin: true,
+    },
     create: {
-      name: 'خالد الشهراني',
-      email: 'admin@shahrani.com',
-      password: adminPassword,
-      role: 'SUPER_ADMIN',
+      name: 'المالك الرئيسي للنظام',
+      email: 'master@highsystem.com',
+      password: masterPassword,
+      role: 'MASTER_ADMIN',
+      isMasterAdmin: true,
       permissions: JSON.stringify(['*']),
     },
   });
-  console.log('✅ Super Admin user created:', admin.email);
+  console.log('✅ Master Admin user created:', masterAdmin.email);
 
   // Create an employee user with customized permissions
   const empPassword = await bcrypt.hash('emp123', 12);
